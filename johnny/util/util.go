@@ -59,7 +59,7 @@ func ExtractAudioURLs(records [][]string) []string {
 
 func CreateDir(directoryPath string) {
 
-	err := os.Mkdir(directoryPath, 0755)
+	err := os.MkdirAll(directoryPath, os.ModePerm)
 
 	if err != nil {
 		log.Fatalf("Not able to create directory %v, %v", directoryPath, err)
