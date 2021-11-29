@@ -12,6 +12,7 @@ import (
 
 const (
 	MAX_WORKERS = 30
+	AUDIO_RATE = "8k"
 )
 
 
@@ -21,11 +22,13 @@ func Run() {
 	inputPathArg := flag.String("input", "input.csv", "csv which contains audio urls")
 	outputWavDirArg := flag.String("output", "wav_audios", "directory where the wav audios need to be stored.")
 	workersArg := flag.Int("workers", MAX_WORKERS, "maximum goroutines in the pool")
+	audioRateArg := flag.String("rate", AUDIO_RATE, "audio sample rate / frequency of output audios.")
 	flag.Parse()
 
 	csvPath := *inputPathArg
 	outputWavDir := * outputWavDirArg
 	workers := *workersArg
+	rate := *audioRateArg
 
 	util.CreateDir(outputWavDir)
 	
@@ -46,12 +49,12 @@ func Run() {
 	}
 
 	for _, audioURL := range audioURLs {
-		jobs <- Job{AudioURL: audioURL, WavAudioDirPath: outputWavDir}	
+		jobs <- Job{AudioURL: audioURL, WavAudioDirPath: outputWavDir, AudioRate: rate}	
 		bar.Add(1)
 	}
 	close(jobs)
 
 	wg.Wait()
-	fmt.Printf("finished processing %d audios and stored them in %v\n", len(audioURLs), outputWavDir)
+	fmt.Printf("finished downloading & converting %d audios to %vHz, stored them in %v\n", len(audioURLs), rate, outputWavDir)
 
 }

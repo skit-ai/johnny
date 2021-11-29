@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-func convertAudioTo8hz(inputAudioPath string, outputAudioPath string) {
+func convertAudioTo8hz(inputAudioPath string, outputAudioPath string, rate string) {
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 
 	name := "ffmpeg"
-	args := []string{"-i", inputAudioPath, "-acodec", "pcm_s16le", "-ac", "1", "-ar", "8k", outputAudioPath}
+	args := []string{"-i", inputAudioPath, "-acodec", "pcm_s16le", "-ac", "1", "-ar", rate, outputAudioPath}
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr

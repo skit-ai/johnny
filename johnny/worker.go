@@ -29,7 +29,7 @@ func worker(id int, input chan Job) {
 		convertedAudioFilePath := filepath.Join(job.WavAudioDirPath, wav8khzConvertedFilename)
 
 		// task 2
-		convertAudioTo8hz(tmpFileName, convertedAudioFilePath)
+		convertAudioTo8hz(tmpFileName, convertedAudioFilePath, job.AudioRate)
 
 		util.DeleteTmpFile(tmpFileName)
 
