@@ -13,7 +13,6 @@ func isRaw(inputAudioString string) bool {
 
 }
 
-
 func getFfmpegCommandArgs(inputAudioPath string, outputAudioPath string, outputRate string, isRawFile bool) []string {
 
 	var ffmpegArgs []string
@@ -23,19 +22,19 @@ func getFfmpegCommandArgs(inputAudioPath string, outputAudioPath string, outputR
 			"-f", "s16le",
 			"-ar", "8k",
 			"-ac", "1",
-			"-i", inputAudioPath, 
-			"-acodec", "pcm_s16le", 
-			"-ac", "1", 
-			"-ar", outputRate, 
+			"-i", inputAudioPath,
+			"-acodec", "pcm_s16le",
+			"-ac", "1",
+			"-ar", outputRate,
 			outputAudioPath,
 			"-hide_banner",
 		}
 	} else {
 		ffmpegArgs = []string{
-			"-i", inputAudioPath, 
-			"-acodec", "pcm_s16le", 
-			"-ac", "1", 
-			"-ar", outputRate, 
+			"-i", inputAudioPath,
+			"-acodec", "pcm_s16le",
+			"-ac", "1",
+			"-ar", outputRate,
 			outputAudioPath,
 			"-hide_banner",
 		}
@@ -45,8 +44,7 @@ func getFfmpegCommandArgs(inputAudioPath string, outputAudioPath string, outputR
 
 }
 
-
-func convertAudioTo8hz(inputAudioPath string, outputAudioPath string, rate string, isRawFile bool) {
+func convertAudioToSpecificKiloHz(inputAudioPath string, outputAudioPath string, rate string, isRawFile bool) {
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer

@@ -91,7 +91,6 @@ func Run() {
 	wg.Wait()
 
 	timeLapsed := time.Since(start)
-	// fmt.Printf("->> johnny finished downloading & converting %d audios to %vHz under %v, stored them in %v.\n", noOfAudioURLs, rate, timeLapsed, outputWavDir)
 
 	fmt.Printf("->> johnny took %v for %d audios. they are stored under the directory: %v.\n", timeLapsed, noOfAudioURLs, outputWavDir)
 

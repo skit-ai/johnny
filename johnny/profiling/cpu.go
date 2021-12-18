@@ -12,7 +12,7 @@ func ProfileCpuUsage(cpuprofile string) func() {
 	if err != nil {
 		log.Fatal("could not create CPU profile: ", err)
 	}
-	
+
 	if err := pprof.StartCPUProfile(f); err != nil {
 		log.Fatal("could not start CPU profile: ", err)
 	}
@@ -23,4 +23,3 @@ func ProfileCpuUsage(cpuprofile string) func() {
 	}
 
 }
-
