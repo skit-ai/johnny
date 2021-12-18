@@ -4,7 +4,9 @@ import (
 	"encoding/csv"
 	"io"
 	"log"
+	"net/url"
 	"os"
+	"strings"
 )
 
 func ReadColumnRow(pathToFile string) []string {
@@ -43,10 +45,22 @@ func IdentifyAudioURLColumnPosition(columnRow []string) (bool, int) {
 
 }
 
-func ReadOnlyAudioURLs(pathToFile string, columnPos int) []string {
+func isValidURL(s string) bool {
+
+	_, err := url.ParseRequestURI(s)
+
+	httpStartsWith := strings.HasPrefix(s, "http://")
+	httpsStartsWith := strings.HasPrefix(s, "https://")
+
+	return err == nil && (httpStartsWith || httpsStartsWith)
+
+}
+
+func ReadOnlyAudioURLs(pathToFile string, columnPos int, audioURLs chan string) {
+
+	defer close(audioURLs)
 
 	var audioURL string
-	audioURLs := []string{}
 
 	f, err := os.Open(pathToFile)
 	if err != nil {
@@ -62,13 +76,18 @@ func ReadOnlyAudioURLs(pathToFile string, columnPos int) []string {
 		// read just one record at a time
 		record, err := csvReader.Read()
 		idx += 1
-		// fmt.Println(record)
+
+		// to ignore first row, which is column names
+		if idx == 1 {
+			continue
+		}
 
 		// to weed out rows which are less than what we expect in rows.
-		if len(record) > columnPos {
+		// also checking if given string is a URL or not.
+		if len(record) > columnPos && isValidURL(record[columnPos]) {
 
 			audioURL = record[columnPos]
-			audioURLs = append(audioURLs, audioURL)
+			audioURLs <- audioURL
 
 		}
 
@@ -80,8 +99,6 @@ func ReadOnlyAudioURLs(pathToFile string, columnPos int) []string {
 
 	}
 
-	// to skip column name, from first row.
-	return audioURLs[1:]
 }
 
 func CreateDir(directoryPath string) {
@@ -101,4 +118,12 @@ func DeleteTmpFile(tmpFileName string) {
 		log.Println(err)
 	}
 
+}
+
+// Max returns the larger of x or y.
+func Max(x, y int) int {
+	if x < y {
+		return y
+	}
+	return x
 }

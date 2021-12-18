@@ -35,11 +35,32 @@ func Run() {
 
 	columnRow := util.ReadColumnRow(csvPath)
 	_, columnPos := util.IdentifyAudioURLColumnPosition(columnRow)
-	audioURLs := util.ReadOnlyAudioURLs(csvPath, columnPos)
 
+	audioURLs := make(chan string, util.Max(workers*2, 100))
 	jobs := make(chan Job, workers)
+
 	var wg sync.WaitGroup
-	bar := progressbar.Default(int64(len(audioURLs)))
+	bar := progressbar.Default(int64(-1), "downloading & converting audios ...")
+
+	noOfAudioURLs := 0
+	wg.Add(1)
+
+	go func() {
+
+		defer wg.Done()
+		defer close(jobs)
+		defer bar.Finish()
+
+		for audioURL := range audioURLs {
+			jobs <- Job{AudioURL: audioURL, WavAudioDirPath: outputWavDir, AudioRate: rate}
+
+			noOfAudioURLs += 1
+			bar.Add(1)
+		}
+
+	}()
+
+	go util.ReadOnlyAudioURLs(csvPath, columnPos, audioURLs)
 
 	wg.Add(workers)
 	for i := 1; i <= workers; i++ {
@@ -49,15 +70,11 @@ func Run() {
 		}(i)
 	}
 
-	for _, audioURL := range audioURLs {
-		jobs <- Job{AudioURL: audioURL, WavAudioDirPath: outputWavDir, AudioRate: rate}
-		bar.Add(1)
-	}
-	close(jobs)
-
 	wg.Wait()
 
 	timeLapsed := time.Since(start)
-	fmt.Printf("->> johnny finished downloading & converting %d audios to %vHz under %v, stored them in %v.\n", len(audioURLs), rate, timeLapsed, outputWavDir)
+	// fmt.Printf("->> johnny finished downloading & converting %d audios to %vHz under %v, stored them in %v.\n", noOfAudioURLs, rate, timeLapsed, outputWavDir)
+
+	fmt.Printf("->> johnny took %v for %d audios. they are stored under the directory: %v.\n", timeLapsed, noOfAudioURLs, outputWavDir)
 
 }
