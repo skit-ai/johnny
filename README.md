@@ -14,7 +14,9 @@
 You provide a .csv containting a column called `audio_url` / `s3_audio_url`.
 And `johnny`, downloads all those audios, converts them to 8kHz 16bit .wav audios, and puts them in a directory/path you provide in `-output`.
 
-Optionally you can provide the resulting output frequency/sample rate you want at `-rate`. ("8k", "16k", "22k", "44k" anyting that ffmpeg accepts)
+The audios on S3 can be .raw/.flac or any format. doesn't matter.
+
+Optionally you can provide the resulting output frequency/sample rate you want at `-rate`. ("8k", "16k", "22k", "44k" anything that `ffmpeg` accepts)
 Optionally you can also provide the number of concurrent goroutine workers you want at `-workers`.
 
 
@@ -33,8 +35,13 @@ Usage of ./johnny:
 
 
 ```
-$ ./johnny -input tagged_data.csv -output data/wav_audios/ -workers 50
- 100% |████████████████████████████████████████████████████████████| (967/967, 90 it/s)         
-finished downloading & converting 967 audios to 8kHz, stored them in data/wav_audios/
+$ ./johnny -input tagged_data.csv -output wav_audios/ -workers 30
+⠏ downloading & converting audios ... (8135/-, 81 it/s) 
+->> johnny took 1m40.567284374s for 8135 audios. they are stored under the directory: wav_audios.
 ```
+
+## Depends on
+
+* [ffmpeg](https://www.ffmpeg.org/)
+
 
