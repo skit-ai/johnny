@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"johnny/johnny/profiling"
 	"johnny/johnny/util"
 
 	"github.com/schollz/progressbar/v3"
@@ -24,12 +25,29 @@ func Run() {
 	outputWavDirArg := flag.String("output", "wav_audios", "directory where the wav audios need to be stored.")
 	workersArg := flag.Int("workers", MAX_WORKERS, "maximum goroutines in the pool")
 	audioRateArg := flag.String("rate", AUDIO_RATE, "audio sample rate / frequency of output audios.")
+	cpuprofileArg := flag.String("cpuprofile", "", "write cpu profile to `file`")
+	memprofileArg := flag.String("memprofile", "", "write memory profile to `file`")
+
 	flag.Parse()
 
 	csvPath := *inputPathArg
 	outputWavDir := *outputWavDirArg
 	workers := *workersArg
 	rate := *audioRateArg
+	cpuprofile := *cpuprofileArg
+	memprofile := *memprofileArg
+
+	// profiling.ProfileCpuUsage is triggered immediately
+	// and function returned by it executed by defer later.
+	if cpuprofile != "" {
+		defer profiling.ProfileCpuUsage(cpuprofile)()
+	}
+
+	// profiling.ProfileMemUsage is triggered by
+	// defer later only, unlike profiling.ProfileCpuUsage
+	if memprofile != "" {
+		defer profiling.ProfileMemUsage(memprofile)
+	}
 
 	util.CreateDir(outputWavDir)
 
