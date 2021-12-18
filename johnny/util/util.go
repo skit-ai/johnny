@@ -2,11 +2,12 @@ package util
 
 import (
 	"encoding/csv"
+	"io"
 	"log"
 	"os"
 )
 
-func ReadCsvFile(pathToFile string) [][]string {
+func ReadColumnRow(pathToFile string) []string {
 
 	f, err := os.Open(pathToFile)
 	if err != nil {
@@ -15,19 +16,19 @@ func ReadCsvFile(pathToFile string) [][]string {
 	defer f.Close()
 
 	csvReader := csv.NewReader(f)
-	records, err := csvReader.ReadAll()
+	columnRow, err := csvReader.Read()
 	if err != nil {
-		log.Fatal("Unable to parse file as CSV for "+pathToFile, err)
+		log.Fatal("Unable to parse first row from CSV "+pathToFile, err)
 	}
 
-	return records
+	return columnRow
 }
 
-func identifyColumnPosition(records [][]string) (bool, int) {
+func IdentifyAudioURLColumnPosition(columnRow []string) (bool, int) {
 
 	audioUrlColumnNames := []string{"audio_url", "s3_audio_url"}
 
-	for i, columnName := range records[0] {
+	for i, columnName := range columnRow {
 		for _, columnConstant := range audioUrlColumnNames {
 			if columnName == columnConstant {
 				columnPos := i
@@ -36,25 +37,51 @@ func identifyColumnPosition(records [][]string) (bool, int) {
 		}
 	}
 
-	log.Fatalf("could not find audio urls := %v\n", audioUrlColumnNames)
+	log.Fatalf("could not find audio urls in column names expected := %v\n"+
+		"from given column names := %v\n", audioUrlColumnNames, columnRow)
 	return false, 0
 
 }
 
-func ExtractAudioURLs(records [][]string) []string {
+func ReadOnlyAudioURLs(pathToFile string, columnPos int) []string {
 
-	_, columnPos := identifyColumnPosition(records)
+	var audioURL string
+	audioURLs := []string{}
 
-	audios := []string{}
+	f, err := os.Open(pathToFile)
+	if err != nil {
+		log.Fatalf("Unable to read input file %v, %v\n", pathToFile, err)
+	}
+	defer f.Close()
 
-	// starts at 1 to skip column names.
-	// assumes second column is audio url, and takes it.
-	for i := 1; i < len(records); i++ {
-		audios = append(audios, records[i][columnPos])
+	csvReader := csv.NewReader(f)
+	csvReader.FieldsPerRecord = -1
+
+	idx := 0
+	for {
+		// read just one record at a time
+		record, err := csvReader.Read()
+		idx += 1
+		// fmt.Println(record)
+
+		// to weed out rows which are less than what we expect in rows.
+		if len(record) > columnPos {
+
+			audioURL = record[columnPos]
+			audioURLs = append(audioURLs, audioURL)
+
+		}
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			log.Fatalf("Unable to read %d row in csv file %v, %v\n", idx, pathToFile, err)
+		}
+
 	}
 
-	return audios
-
+	// to skip column name, from first row.
+	return audioURLs[1:]
 }
 
 func CreateDir(directoryPath string) {
