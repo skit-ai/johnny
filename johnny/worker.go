@@ -21,7 +21,7 @@ func worker(id int, input chan Job) {
 		tmpFileName, err := downloadAndSaveFile(url)
 		if err != nil {
 			log.Println(err)
-			return
+			continue
 		}
 
 		fileNameSplit := strings.Split(nameOfAudioFile, ".")
