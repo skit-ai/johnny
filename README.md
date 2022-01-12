@@ -9,6 +9,12 @@
 * And you want them fast.
 
 
+## Setup / Installation
+
+1. Head to [releases](https://github.com/skit-ai/johnny/releases) section.
+2. Download the binary appropriate for your OS: like Linux & x86, it should either be a `.tar.gz` or `.zip` file.
+3. Untar/unzip it, and get started with using it!
+
 ## Usage
 
 You provide a .csv containting a column called `audio_url` / `s3_audio_url`.
