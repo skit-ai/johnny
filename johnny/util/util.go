@@ -56,6 +56,25 @@ func isValidURL(s string) bool {
 
 }
 
+
+func downloadableURL(s string) string {
+
+	u, err := url.Parse(s)
+	if err != nil {
+		log.Println(err)
+	}
+
+	q := u.Query()
+
+	if q.Get("audio_url") != "" {
+		return q.Get("audio_url")
+	}
+
+	return s
+
+}
+
+
 func ReadOnlyAudioURLs(pathToFile string, columnPos int, audioURLs chan string) {
 
 	defer close(audioURLs)
@@ -87,6 +106,7 @@ func ReadOnlyAudioURLs(pathToFile string, columnPos int, audioURLs chan string) 
 		if len(record) > columnPos && isValidURL(record[columnPos]) {
 
 			audioURL = record[columnPos]
+			audioURL = downloadableURL(audioURL)
 			audioURLs <- audioURL
 
 		}
